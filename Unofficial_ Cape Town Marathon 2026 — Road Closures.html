@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<!-- saved from url=(0055)file:///C:/Users/Owner/Downloads/ct_marathon_map_3.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unofficial: Cape Town Marathon 2026 — Road Closures</title>
+<link rel="stylesheet" href="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/leaflet.css">
+<link href="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/css2" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#181c26;--surface2:#1e2433;
+  --border:rgba(255,255,255,0.08);--text:#e8eaf0;--muted:#7a8099;--accent:#f0a500;
+  --col-peace:#34d399;--col-trail:#fbbf24;--col-marathon:#fb923c;
+  --col-full:#f87171;--col-parking:#3b9eff;--col-delay:#a78bfa;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
+#app{display:flex;height:100vh;overflow:hidden}
+
+#sidebar{width:340px;min-width:340px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:1000}
+#sidebar-header{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.logo-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.logo-dot{width:10px;height:10px;background:var(--accent);border-radius:50%}
+.logo-text{font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-family:'DM Mono',monospace}
+h1{font-size:17px;font-weight:500;line-height:1.3;margin-bottom:4px}
+.subtitle{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
+
+#filters{padding:14px 20px;border-bottom:1px solid var(--border)}
+.filter-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;font-family:'DM Mono',monospace}
+.event-filters{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.ef-btn{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:5px;border:1px solid;cursor:pointer;transition:opacity .15s,transform .1s;font-family:'DM Sans',sans-serif;background:transparent}
+.ef-btn:hover{transform:translateY(-1px)}
+.ef-btn.off{opacity:.2}
+.ef-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.ef-name{font-size:13px;font-weight:500}
+.ef-sub{font-size:11px;margin-left:auto;font-family:'DM Mono',monospace}
+.ef-btn[data-ev="peace"]{border-color:var(--col-peace);background:rgba(52,211,153,.06)}
+.ef-btn[data-ev="trail"]{border-color:var(--col-trail);background:rgba(251,191,36,.06)}
+.ef-btn[data-ev="marathon"]{border-color:var(--col-marathon);background:rgba(251,146,60,.06)}
+
+.type-filters{display:flex;gap:6px}
+.tf-btn{flex:1;font-size:11px;font-family:'DM Mono',monospace;font-weight:500;padding:5px 6px;border-radius:4px;border:1px solid;cursor:pointer;transition:opacity .15s;text-align:center;background:transparent}
+.tf-btn.off{opacity:.2}
+.tf-btn[data-ct="full"]{border-color:var(--col-full);color:var(--col-full)}
+.tf-btn[data-ct="parking"]{border-color:var(--col-parking);color:var(--col-parking)}
+.tf-btn[data-ct="delay"]{border-color:var(--col-delay);color:var(--col-delay)}
+
+#search-wrap{padding:12px 20px;border-bottom:1px solid var(--border)}
+#search{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:7px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+#search:focus{border-color:rgba(255,255,255,.2)}
+#search::placeholder{color:var(--muted)}
+
+.count-bar{padding:8px 20px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;border-bottom:1px solid var(--border)}
+#road-list{flex:1;overflow-y:auto;padding:8px 0}
+#road-list::-webkit-scrollbar{width:4px}
+#road-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.road-item{padding:10px 20px;cursor:pointer;border-left:3px solid transparent;transition:background .1s}
+.road-item:hover{background:var(--surface2)}
+.road-item.active{background:var(--surface2)}
+.ri-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px}
+.ri-badge{font-size:10px;font-family:'DM Mono',monospace;font-weight:500;padding:1px 5px;border-radius:2px;white-space:nowrap}
+.ri-name{font-size:13px;font-weight:500;margin:2px 0}
+.ri-section{font-size:11px;color:var(--muted);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ri-time{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace}
+
+#map{flex:1;z-index:1}
+
+.leaflet-popup-content-wrapper{background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:6px!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important;color:var(--text)!important;font-family:'DM Sans',sans-serif!important;min-width:240px}
+.leaflet-popup-tip{background:var(--surface)!important}
+.leaflet-popup-content{margin:14px 16px!important}
+.popup-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.popup-badge{font-size:10px;font-family:'DM Mono',monospace;font-weight:500;padding:2px 6px;border-radius:2px;display:inline-block}
+.popup-road{font-size:15px;font-weight:500;margin-bottom:3px}
+.popup-section{font-size:12px;color:#7a8099;margin-bottom:8px}
+.popup-detail{font-size:12px;margin-bottom:8px;line-height:1.5}
+.popup-time{font-size:11px;font-family:'DM Mono',monospace;background:rgba(255,255,255,.05);padding:6px 8px;border-radius:3px}
+.popup-time span{color:#7a8099}
+
+#legend{position:absolute;bottom:24px;right:16px;z-index:900;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px 14px}
+.leg-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-family:'DM Mono',monospace;margin-bottom:8px}
+.leg-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px}
+.leg-line{width:20px;height:3px;border-radius:1px;flex-shrink:0}
+.leg-dashed{background:repeating-linear-gradient(90deg,#3b9eff 0,#3b9eff 5px,transparent 5px,transparent 9px);height:2px}
+.leg-dotted{background:repeating-linear-gradient(90deg,#a78bfa 0,#a78bfa 4px,transparent 4px,transparent 8px);height:2px}
+
+#toggle-sidebar{display:none;position:fixed;top:12px;left:12px;z-index:2000;background:var(--surface);border:1px solid var(--border);color:var(--text);font-size:20px;width:40px;height:40px;border-radius:6px;cursor:pointer;align-items:center;justify-content:center}
+@media(max-width:700px){
+  #toggle-sidebar{display:flex}
+  #sidebar{position:fixed;left:-340px;top:0;height:100%;transition:left .25s}
+  #sidebar.open{left:0}
+}
+</style>
+</head>
+<body>
+<button id="toggle-sidebar" onclick="document.getElementById(&#39;sidebar&#39;).classList.toggle(&#39;open&#39;)">☰</button>
+<div id="app">
+  <div id="sidebar">
+    <div id="sidebar-header">
+      <div class="logo-row"><div class="logo-dot"></div><span class="logo-text">Sanlam Cape Town Marathon 2026</span></div>
+      <h1>Unofficial: Road Closures &amp; Parking Restrictions</h1>
+      <div class="subtitle">22 – 24 May 2026</div>
+      <div class="subtitle" style="margin-top:6px;opacity:0.55">Made by Lucie Martin with <a href="https://claude.ai/" style="color:var(--muted);text-decoration:underline" target="_blank">Claude.ai</a></div>
+    </div>
+    <div id="filters">
+      <div class="filter-label">Event</div>
+      <div class="event-filters">
+        <button class="ef-btn" data-ev="peace">
+          <div class="ef-dot" style="background:var(--col-peace)"></div>
+          <span class="ef-name" style="color:var(--col-peace)">Peace Run</span>
+          <span class="ef-sub" style="color:var(--col-peace)">Sat 23 May</span>
+        </button>
+        <button class="ef-btn" data-ev="trail">
+          <div class="ef-dot" style="background:var(--col-trail)"></div>
+          <span class="ef-name" style="color:var(--col-trail)">Trail Run</span>
+          <span class="ef-sub" style="color:var(--col-trail)">Sat 23 May</span>
+        </button>
+        <button class="ef-btn" data-ev="marathon">
+          <div class="ef-dot" style="background:var(--col-marathon)"></div>
+          <span class="ef-name" style="color:var(--col-marathon)">Marathon</span>
+          <span class="ef-sub" style="color:var(--col-marathon)">Sun 24 May</span>
+        </button>
+      </div>
+      <div class="filter-label">Closure type</div>
+      <div class="type-filters">
+        <button class="tf-btn" data-ct="full">⛔ Full closure</button>
+        <button class="tf-btn" data-ct="parking">🅿 Parking</button>
+        <button class="tf-btn" data-ct="delay">⚠ Delays</button>
+      </div>
+    </div>
+    <div id="search-wrap"><input id="search" type="text" placeholder="Search roads…"></div>
+    <div class="count-bar" id="count-bar">95 roads shown</div>
+    <div id="road-list"><div class="road-item " data-ref="A1" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A1</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Fritz Sonnenberg Rd</div>
+      <div class="ri-section">Beach Rd → Bay Rd</div>
+      <div class="ri-time">22 May, 08h00 → 24 May, 10h00</div>
+    </div><div class="road-item " data-ref="A2" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A2</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Beach Rd</div>
+      <div class="ri-section">Green Point Lighthouse → Portswood Dr</div>
+      <div class="ri-time">22 May, 08h00 → 24 May, 10h00</div>
+    </div><div class="road-item " data-ref="A3" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A3</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Portswood Dr</div>
+      <div class="ri-section">Beach Rd → Helen Suzman Blvd</div>
+      <div class="ri-time">22 May, 08h00 → 24 May, 10h00</div>
+    </div><div class="road-item " data-ref="A4" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A4</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Searle St</div>
+      <div class="ri-section">Pontac St → Sir Lowry Rd</div>
+      <div class="ri-time">22 May, 08h00 → 24 May, 11h00</div>
+    </div><div class="road-item " data-ref="A5" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A5</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Victoria Rd</div>
+      <div class="ri-section">Searle St → Salt River Rd</div>
+      <div class="ri-time">22 May, 17h00 → 24 May, 11h40</div>
+    </div><div class="road-item " data-ref="A7" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A7</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Main Rd (Mowbray–Newlands)</div>
+      <div class="ri-section">Dean St → Settlers Way offramp</div>
+      <div class="ri-time">22 May, 17h00 → 24 May, 12h30</div>
+    </div><div class="road-item " data-ref="A8" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A8</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Liesbeek Parkway</div>
+      <div class="ri-section">Settlers Way offramp → Klipfontein/Durban Rd</div>
+      <div class="ri-time">22 May, 17h00 → 24 May, 14h20</div>
+    </div><div class="road-item " data-ref="A9" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A9</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Albert Rd</div>
+      <div class="ri-section">Lower Main Rd → Grey St</div>
+      <div class="ri-time">22 May, 17h00 → 24 May, 15h00</div>
+    </div><div class="road-item " data-ref="A10" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A10</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Newmarket St</div>
+      <div class="ri-section">Grey St → Russell St</div>
+      <div class="ri-time">22 May, 17h00 → 24 May, 15h00</div>
+    </div><div class="road-item " data-ref="A11" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A11</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Russell St</div>
+      <div class="ri-section">Newmarket St → Sir Lowry Rd</div>
+      <div class="ri-time">22 May, 17h00 → 24 May, 15h00</div>
+    </div><div class="road-item " data-ref="A12" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A12</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Sir Lowry Rd</div>
+      <div class="ri-section">Tennant St → Russell St</div>
+      <div class="ri-time">22 May, 17h00 → 24 May, 15h00</div>
+    </div><div class="road-item " data-ref="A14" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A14</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Darling St</div>
+      <div class="ri-section">Sir Lowry Rd → Adderley St</div>
+      <div class="ri-time">22 May, 17h00 → 24 May, 15h00</div>
+    </div><div class="road-item " data-ref="A15" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A15</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Adderley St</div>
+      <div class="ri-section">Darling St → Wale St</div>
+      <div class="ri-time">22 May, 17h00 → 24 May, 15h00</div>
+    </div><div class="road-item " data-ref="A17" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A17</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Long St</div>
+      <div class="ri-section">Riebeek St → Orange St</div>
+      <div class="ri-time">22 May, 17h00 → 24 May, 15h20</div>
+    </div><div class="road-item " data-ref="A18" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A18</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Riebeek St</div>
+      <div class="ri-section">Long St → Buitengracht St</div>
+      <div class="ri-time">22 May, 17h00 → 24 May, 15h20</div>
+    </div><div class="road-item " data-ref="A19" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A19</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Somerset Rd</div>
+      <div class="ri-section">Boundary Rd → Ebenezer Rd</div>
+      <div class="ri-time">22 May, 08h00 → 24 May, 15h30</div>
+    </div><div class="road-item " data-ref="A20" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A20</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Main Rd (Green Point)</div>
+      <div class="ri-section">Three Anchor Bay Rd → Boundary Rd</div>
+      <div class="ri-time">22 May, 08h00 → 24 May, 15h30</div>
+    </div><div class="road-item " data-ref="A22" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A22</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Beach Rd</div>
+      <div class="ri-section">Three Anchor Bay Rd → Queens Rd</div>
+      <div class="ri-time">22 May, 08h00 → 24 May, 15h30</div>
+    </div><div class="road-item " data-ref="A23" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">A23</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#3b9eff22;color:#3b9eff;border:1px solid #3b9eff44">🅿</span></div>
+      <div class="ri-name">Beach Rd</div>
+      <div class="ri-section">Queens Rd → Saunders Rd</div>
+      <div class="ri-time">22 May, 17h00 → 23 May, 10h00</div>
+    </div><div class="road-item " data-ref="B1" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#ffffff22;color:#ffffff;border:1px solid #ffffff44">B1</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Fritz Sonnenberg Rd</div>
+      <div class="ri-section">Stephan Way → McDonald's Access Rd</div>
+      <div class="ri-time">18 May, 08h00 → 25 May, 17h00</div>
+    </div><div class="road-item " data-ref="B2" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#ffffff22;color:#ffffff;border:1px solid #ffffff44">B2</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Vlei Rd</div>
+      <div class="ri-section">Fritz Sonnenberg Rd → Helen Suzman Blvd</div>
+      <div class="ri-time">11 May, 08h00 → 28 May, 17h00</div>
+    </div><div class="road-item " data-ref="C1" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">C1</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">⚠</span></div>
+      <div class="ri-name">Somerset/Main Rd</div>
+      <div class="ri-section">Intersection at Main Rd &amp; Clyde Rd</div>
+      <div class="ri-time">Sat 06h00 → 16h30</div>
+    </div><div class="road-item " data-ref="C2" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">C2</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">⚠</span></div>
+      <div class="ri-name">High Level Rd</div>
+      <div class="ri-section">Intersection at High Level &amp; Clyde Rd</div>
+      <div class="ri-time">Sat 06h00 → 16h30</div>
+    </div><div class="road-item " data-ref="C3" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">C3</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">⚠</span></div>
+      <div class="ri-name">Joubert Rd</div>
+      <div class="ri-section">Intersection at Joubert Rd &amp; Clyde Rd</div>
+      <div class="ri-time">Sat 06h00 → 16h30</div>
+    </div><div class="road-item " data-ref="C4" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">C4</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">⚠</span></div>
+      <div class="ri-name">Ocean View Dr</div>
+      <div class="ri-section">Intersection at Ocean View Dr &amp; Clyde Rd</div>
+      <div class="ri-time">Sat 06h00 → 16h30</div>
+    </div><div class="road-item " data-ref="C5" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">C5</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">⚠</span></div>
+      <div class="ri-name">Signal Hill Rd</div>
+      <div class="ri-section">Lions Head Parking area</div>
+      <div class="ri-time">Sat 06h00 → 16h30</div>
+    </div><div class="road-item " data-ref="C6" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">C6</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">⚠</span></div>
+      <div class="ri-name">Signal Hill Rd</div>
+      <div class="ri-section">At Appleton Scout Campsite</div>
+      <div class="ri-time">Sat 06h00 → 16h30</div>
+    </div><div class="road-item " data-ref="C7" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">C7</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">⚠</span></div>
+      <div class="ri-name">Springbok Rd</div>
+      <div class="ri-section">Intersection at Springbok Rd &amp; Clyde Rd</div>
+      <div class="ri-time">Sat 06h00 → 16h30</div>
+    </div><div class="road-item " data-ref="C8" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">C8</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">⚠</span></div>
+      <div class="ri-name">Kloof Nek Rd</div>
+      <div class="ri-section">Signal Hill Rd junction ↔ Tafelberg Rd junction</div>
+      <div class="ri-time">Sat 06h30 → 15h00</div>
+    </div><div class="road-item " data-ref="C9" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">C9</span><span class="ri-badge" style="background:#fbbf2422;color:#fbbf24;border:1px solid #fbbf2444">Trail</span><span class="ri-badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">⚠</span></div>
+      <div class="ri-name">Kloof Rd</div>
+      <div class="ri-section">Kloof Rd ↔ Kloof Nek Rd junction</div>
+      <div class="ri-time">Sat 07h00 → 12h30</div>
+    </div><div class="road-item " data-ref="D1" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">D1</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Fritz Sonnenberg Rd</div>
+      <div class="ri-section">Stephan Way → Beach Rd</div>
+      <div class="ri-time">Sat 07h00 → 10h30</div>
+    </div><div class="road-item " data-ref="D2" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">D2</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Beach Rd</div>
+      <div class="ri-section">Helen Suzman Blvd → Fritz Sonnenberg Rd</div>
+      <div class="ri-time">Sat 07h00 → 11h45</div>
+    </div><div class="road-item " data-ref="D3" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">D3</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Beach Rd</div>
+      <div class="ri-section">St Johns Rd → Helen Suzman Blvd</div>
+      <div class="ri-time">Sat 06h30 → 11h30</div>
+    </div><div class="road-item " data-ref="D4" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">D4</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Beach Rd</div>
+      <div class="ri-section">Queens Rd → St Johns</div>
+      <div class="ri-time">Sat 06h30 → 10h30</div>
+    </div><div class="road-item " data-ref="D5" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">D5</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Beach Rd</div>
+      <div class="ri-section">Queens Rd → Saunders Rd</div>
+      <div class="ri-time">Sat 07h00 → 10h00</div>
+    </div><div class="road-item " data-ref="D6" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">D6</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Beach Rd</div>
+      <div class="ri-section">St Johns Rd → Queens Rd</div>
+      <div class="ri-time">Sat 07h00 → 10h30</div>
+    </div><div class="road-item " data-ref="D7" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">D7</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Bay Rd</div>
+      <div class="ri-section">Rothesay Place → Alexander Place</div>
+      <div class="ri-time">Sat 07h30 → 11h30</div>
+    </div><div class="road-item " data-ref="D8" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">D8</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Alexander Rd</div>
+      <div class="ri-section">Queens Rd → Beach Rd</div>
+      <div class="ri-time">Sat 07h30 → 10h30</div>
+    </div><div class="road-item " data-ref="D9" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">D9</span><span class="ri-badge" style="background:#34d39922;color:#34d399;border:1px solid #34d39944">Peace</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Queens Rd</div>
+      <div class="ri-section">Regent Rd → Beach Rd</div>
+      <div class="ri-time">Sat 07h30 → 10h30</div>
+    </div><div class="road-item " data-ref="E2" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">E2</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Beach Rd</div>
+      <div class="ri-section">Green Point Lighthouse → Surrey Place</div>
+      <div class="ri-time">Sun 02h00 → 10h00</div>
+    </div><div class="road-item " data-ref="E3" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">E3</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Beach Rd</div>
+      <div class="ri-section">Surrey Place → Portswood Dr</div>
+      <div class="ri-time">Sun 04h00 → 10h00</div>
+    </div><div class="road-item " data-ref="E5" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">E5</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Granger Bay Blvd</div>
+      <div class="ri-section">Helen Suzman Blvd → Granger Rd</div>
+      <div class="ri-time">Sun 07h30 → 09h45</div>
+    </div><div class="road-item " data-ref="E7" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">E7</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Portswood Rd</div>
+      <div class="ri-section">Granger Rd → Helen Suzman Blvd</div>
+      <div class="ri-time">Sun 07h00 → 10h00</div>
+    </div><div class="road-item " data-ref="E8" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">E8</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Helen Suzman Blvd (inbound)</div>
+      <div class="ri-section">Granger Bay Circle → Buitengracht St</div>
+      <div class="ri-time">Sun 07h20 → 10h10</div>
+    </div><div class="road-item " data-ref="E9" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">E9</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Buitengracht St</div>
+      <div class="ri-section">Helen Suzman Blvd → Dock Rd</div>
+      <div class="ri-time">Sun 07h00 → 10h15</div>
+    </div><div class="road-item " data-ref="E11" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">E11</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Dock Rd</div>
+      <div class="ri-section">South Arm Rd → Buitengracht St</div>
+      <div class="ri-time">Sun 07h25 → 10h00</div>
+    </div><div class="road-item " data-ref="E13" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">E13</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Nelson Mandela Blvd</div>
+      <div class="ri-section">Dock Rd → Searle St</div>
+      <div class="ri-time">Sun 06h40 → 11h00</div>
+    </div><div class="road-item " data-ref="E14" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">E14</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Somerset Rd</div>
+      <div class="ri-section">Boundary Rd → Buitengracht St</div>
+      <div class="ri-time">Sun 05h45 → 15h40</div>
+    </div><div class="road-item " data-ref="E15" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">E15</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Main Rd (Green Point)</div>
+      <div class="ri-section">Three Anchor Bay Rd → Boundary Rd</div>
+      <div class="ri-time">Sun 05h45 → 15h40</div>
+    </div><div class="road-item " data-ref="E16" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">E16</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Three Anchor Bay Rd</div>
+      <div class="ri-section">Main Rd → Beach Rd</div>
+      <div class="ri-time">Sun 07h30 → 16h40</div>
+    </div><div class="road-item " data-ref="E17" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">E17</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Beach Rd</div>
+      <div class="ri-section">Three Anchor Bay Rd → Queens Rd</div>
+      <div class="ri-time">Sun 04h00 → 16h40</div>
+    </div><div class="road-item " data-ref="E18" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">E18</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Buitengracht St</div>
+      <div class="ri-section">Riebeek St → Somerset Rd inbound</div>
+      <div class="ri-time">Sun 08h45 → 14h40</div>
+    </div><div class="road-item " data-ref="E19" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">E19</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Helen Suzman Blvd</div>
+      <div class="ri-section">Three Anchor Bay Rd → Granger Bay Blvd</div>
+      <div class="ri-time">Sun 07h30 → 16h40</div>
+    </div><div class="road-item " data-ref="F4" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">F4</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Newmarket St</div>
+      <div class="ri-section">Strand St → Russell St</div>
+      <div class="ri-time">Sun 07h10 → 14h50</div>
+    </div><div class="road-item " data-ref="F5" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">F5</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Russell St</div>
+      <div class="ri-section">Newmarket St → Sir Lowry Rd</div>
+      <div class="ri-time">Sun 07h10 → 14h50</div>
+    </div><div class="road-item " data-ref="F6" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">F6</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Sir Lowry Rd</div>
+      <div class="ri-section">Tennant St → Russell St</div>
+      <div class="ri-time">Sun 07h10 → 14h50</div>
+    </div><div class="road-item " data-ref="F7" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">F7</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Sir Lowry Rd</div>
+      <div class="ri-section">Tennant St → Darling St</div>
+      <div class="ri-time">Sun 07h10 → 14h50</div>
+    </div><div class="road-item " data-ref="F8" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">F8</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Darling St northbound</div>
+      <div class="ri-section">Primrose St → Buitenkant/Castle St</div>
+      <div class="ri-time">Sun 07h10 → 14h50</div>
+    </div><div class="road-item " data-ref="F9" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">F9</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Darling St</div>
+      <div class="ri-section">Castle St → Lower Plein St</div>
+      <div class="ri-time">Sun 07h10 → 15h05</div>
+    </div><div class="road-item " data-ref="F10" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">F10</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Darling St</div>
+      <div class="ri-section">Lower Plein St → Adderley St</div>
+      <div class="ri-time">Sun 07h10 → 15h05</div>
+    </div><div class="road-item " data-ref="F11" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">F11</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Buitenkant St</div>
+      <div class="ri-section">Caledon St → Darling St</div>
+      <div class="ri-time">Sun 07h10 → 14h50</div>
+    </div><div class="road-item " data-ref="F12" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">F12</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Adderley St</div>
+      <div class="ri-section">Strand St → Wale St</div>
+      <div class="ri-time">Sun 07h30 → 15h05</div>
+    </div><div class="road-item " data-ref="F13" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">F13</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Orange St</div>
+      <div class="ri-section">Hof St → Long St</div>
+      <div class="ri-time">Sun 07h30 → 15h20</div>
+    </div><div class="road-item " data-ref="F14" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">F14</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Long St</div>
+      <div class="ri-section">Wale St → Orange St</div>
+      <div class="ri-time">Sun 04h30 → 15h35</div>
+    </div><div class="road-item " data-ref="F15" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">F15</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Long St</div>
+      <div class="ri-section">Riebeek St → Wale St</div>
+      <div class="ri-time">Sun 04h30 → 15h35</div>
+    </div><div class="road-item " data-ref="F16" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">F16</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Riebeek St</div>
+      <div class="ri-section">Long St → Bree St</div>
+      <div class="ri-time">Sun 07h00 → 15h20</div>
+    </div><div class="road-item " data-ref="F18" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">F18</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Loop St</div>
+      <div class="ri-section">Strand St → Riebeek St</div>
+      <div class="ri-time">Sun 07h00 → 15h20</div>
+    </div><div class="road-item " data-ref="G1" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">G1</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Searle St</div>
+      <div class="ri-section">Nelson Mandela Blvd/N2 → Sir Lowry Rd</div>
+      <div class="ri-time">Sun 07h10 → 11h00</div>
+    </div><div class="road-item " data-ref="G2" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">G2</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Sir Lowry / Victoria Rd</div>
+      <div class="ri-section">Salt River Rd → Searle St</div>
+      <div class="ri-time">Sun 04h30 → 11h30</div>
+    </div><div class="road-item " data-ref="G3" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">G3</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Main Rd</div>
+      <div class="ri-section">N2 → Salt River Rd</div>
+      <div class="ri-time">Sun 05h30 → 11h40</div>
+    </div><div class="road-item " data-ref="G4" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">G4</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Liesbeek Parkway</div>
+      <div class="ri-section">Station Rd → N2</div>
+      <div class="ri-time">Sun 07h40 → 14h05</div>
+    </div><div class="road-item " data-ref="G5" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">G5</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Liesbeek Parkway</div>
+      <div class="ri-section">Station Rd → Berkley Rd</div>
+      <div class="ri-time">Sun 07h40 → 14h20</div>
+    </div><div class="road-item " data-ref="G8" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">G8</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Albert Rd</div>
+      <div class="ri-section">Lower Main Rd → Salt River Circle</div>
+      <div class="ri-time">Sun 06h40 → 14h20</div>
+    </div><div class="road-item " data-ref="G9" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">G9</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Voortrekker Rd</div>
+      <div class="ri-section">Transnet Entrance → Salt River Circle</div>
+      <div class="ri-time">Sun 06h40 → 14h20</div>
+    </div><div class="road-item " data-ref="G10" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">G10</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Albert Rd</div>
+      <div class="ri-section">Salt River Circle → Lower Church St</div>
+      <div class="ri-time">Sun 06h40 → 14h50</div>
+    </div><div class="road-item " data-ref="G12" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">G12</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Albert Rd / Newmarket St</div>
+      <div class="ri-section">Lower Church St → Russell St</div>
+      <div class="ri-time">Sun 07h10 → 14h50</div>
+    </div><div class="road-item " data-ref="H1" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H1</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Main Rd</div>
+      <div class="ri-section">Rhodes Ave → N2</div>
+      <div class="ri-time">Sun 05h30 → 11h40</div>
+    </div><div class="road-item " data-ref="H2" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H2</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Main Rd</div>
+      <div class="ri-section">Belmont Rd → Rhodes Ave</div>
+      <div class="ri-time">Sun 06h40 → 12h10</div>
+    </div><div class="road-item " data-ref="H3" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H3</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Burg Rd</div>
+      <div class="ri-section">Main Rd → Baxter Rd</div>
+      <div class="ri-time">Sun 05h00 → 12h10</div>
+    </div><div class="road-item " data-ref="H4" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H4</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Main Rd</div>
+      <div class="ri-section">Klipper Rd → Belmont Rd</div>
+      <div class="ri-time">Sun 06h40 → 12h45</div>
+    </div><div class="road-item " data-ref="H5" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H5</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Main Rd</div>
+      <div class="ri-section">Letterstedt/Claremont Blvd → Klipper Rd</div>
+      <div class="ri-time">Sun 06h40 → 12h30</div>
+    </div><div class="road-item " data-ref="H6" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H6</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Letterstedt/Claremont Blvd</div>
+      <div class="ri-section">Main Rd → Hawthorne Rd</div>
+      <div class="ri-time">Sun 05h40 → 12h30</div>
+    </div><div class="road-item " data-ref="H7" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H7</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Claremont Blvd</div>
+      <div class="ri-section">Hawthorne Rd → Stanhope St</div>
+      <div class="ri-time">Sun 05h40 → 12h30</div>
+    </div><div class="road-item " data-ref="H8" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H8</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Stanhope Rd</div>
+      <div class="ri-section">Claremont Blvd → Palmyra Rd</div>
+      <div class="ri-time">Sun 07h10 → 12h30</div>
+    </div><div class="road-item " data-ref="H9" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H9</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Palmyra Rd</div>
+      <div class="ri-section">Stanhope Rd → Keurboom Rd</div>
+      <div class="ri-time">Sun 07h10 → 12h45</div>
+    </div><div class="road-item " data-ref="H10" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H10</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Campground Rd</div>
+      <div class="ri-section">Keurboom Rd → Sandown Rd</div>
+      <div class="ri-time">Sun 07h10 → 12h45</div>
+    </div><div class="road-item " data-ref="H11" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H11</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Sandown Rd</div>
+      <div class="ri-section">Campground Rd → Milner Rd</div>
+      <div class="ri-time">Sun 07h40 → 13h00</div>
+    </div><div class="road-item " data-ref="H12" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H12</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Milner Rd</div>
+      <div class="ri-section">Sandown Rd → Greenbank Rd</div>
+      <div class="ri-time">Sun 07h40 → 13h10</div>
+    </div><div class="road-item " data-ref="H14" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H14</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Milner Rd</div>
+      <div class="ri-section">Park Rd → Klipfontein Rd</div>
+      <div class="ri-time">Sun 07h10 → 13h35</div>
+    </div><div class="road-item " data-ref="H15" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H15</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Klipfontein Rd</div>
+      <div class="ri-section">Milner Rd → Sawkins Rd</div>
+      <div class="ri-time">Sun 07h55 → 13h35</div>
+    </div><div class="road-item " data-ref="H16" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H16</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Sawkins Rd</div>
+      <div class="ri-section">Klipfontein Rd → Campground/Pillans Rd Circle</div>
+      <div class="ri-time">Sun 07h55 → 13h35</div>
+    </div><div class="road-item " data-ref="H17" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H17</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Campground Rd</div>
+      <div class="ri-section">Campground/Pillans Rd Circle → Park Rd</div>
+      <div class="ri-time">Sun 07h55 → 13h35</div>
+    </div><div class="road-item " data-ref="H18" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H18</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Park Rd</div>
+      <div class="ri-section">Campground Rd → Liesbeek Parkway</div>
+      <div class="ri-time">Sun 07h55 → 13h35</div>
+    </div><div class="road-item " data-ref="H19" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H19</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">Liesbeek Parkway</div>
+      <div class="ri-section">N2 → Park Rd</div>
+      <div class="ri-time">Sun 07h10 → 14h05</div>
+    </div><div class="road-item " data-ref="H20" style="border-left-color:transparent">
+      <div class="ri-top"><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">H20</span><span class="ri-badge" style="background:#fb923c22;color:#fb923c;border:1px solid #fb923c44">Marathon</span><span class="ri-badge" style="background:#f8717122;color:#f87171;border:1px solid #f8717144">⛔</span></div>
+      <div class="ri-name">N2 offramp onto Liesbeek Pkwy</div>
+      <div class="ri-section">N2 → Liesbeek Pkwy</div>
+      <div class="ri-time">Sun 07h10 → 14h05</div>
+    </div></div>
+  </div>
+
+  <div id="map" class="leaflet-container leaflet-touch leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom" tabindex="0" style="position: relative;"><div class="leaflet-pane leaflet-map-pane" style="transform: translate3d(0px, 0px, 0px);"><div class="leaflet-pane leaflet-tile-pane"><div class="leaflet-layer " style="z-index: 1; opacity: 1;"><div class="leaflet-tile-container leaflet-zoom-animated" style="z-index: 20; transform: translate3d(0px, 0px, 0px) scale(1);"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4917@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(284px, 43px, 0px); opacity: 1;"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4916@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(284px, -213px, 0px); opacity: 1;"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4917@2x(1).png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(28px, 43px, 0px); opacity: 1;"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4917@2x(2).png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(540px, 43px, 0px); opacity: 1;"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4918@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(284px, 299px, 0px); opacity: 1;"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4916@2x(1).png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(28px, -213px, 0px); opacity: 1;"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4916@2x(2).png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(540px, -213px, 0px); opacity: 1;"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4918@2x(1).png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(28px, 299px, 0px); opacity: 1;"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4918@2x(2).png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(540px, 299px, 0px); opacity: 1;"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4917@2x(3).png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(-228px, 43px, 0px); opacity: 1;"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4917@2x(4).png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(796px, 43px, 0px); opacity: 1;"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4916@2x(3).png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(-228px, -213px, 0px); opacity: 1;"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4916@2x(4).png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(796px, -213px, 0px); opacity: 1;"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4918@2x(3).png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(-228px, 299px, 0px); opacity: 1;"><img alt="" src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/4918@2x(4).png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(796px, 299px, 0px); opacity: 1;"></div></div></div><div class="leaflet-pane leaflet-overlay-pane"><svg pointer-events="none" class="leaflet-zoom-animated" width="1128" height="661" viewBox="-94 -55 1128 661" style="transform: translate3d(-94px, -55px, 0px);"><g><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M269 32L288 26"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M207 4L266 30L283 39"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M283 39L265 46"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M444 210L432 198L419 188"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M444 210L469 219L492 230"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M634 342L651 367"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M646 251L656 272L680 309"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M518 186L551 197"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M510 181L487 188"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M487 188L413 188"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M364 185L413 187"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M364 185L330 169L318 160"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M318 160L316 150"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M310 132L310 144L313 159L287 185"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M310 132L318 131L325 120"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M294 75L308 87"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M236 58L283 73L294 75"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M236 58L189 89L123 128L91 153"></path><path class="leaflet-interactive" stroke="#3b9eff" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5" fill="none" d="M91 153L74 162"></path><path class="leaflet-interactive" stroke="#ffffff" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M251 24L272 39"></path><path class="leaflet-interactive" stroke="#ffffff" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M261 21L247 33L243 40"></path><path class="leaflet-interactive" stroke="#a78bfa" stroke-opacity="0.85" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4" fill="none" d="M295 226L304 232"></path><path class="leaflet-interactive" stroke="#a78bfa" stroke-opacity="0.85" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4" fill="none" d="M266 131L273 135"></path><path class="leaflet-interactive" stroke="#a78bfa" stroke-opacity="0.85" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4" fill="none" d="M229 70L236 74"></path><path class="leaflet-interactive" stroke="#a78bfa" stroke-opacity="0.85" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4" fill="none" d="M236 98L243 102"></path><path class="leaflet-interactive" stroke="#a78bfa" stroke-opacity="0.85" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4" fill="none" d="M180 249L189 230"></path><path class="leaflet-interactive" stroke="#a78bfa" stroke-opacity="0.85" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4" fill="none" d="M201 146L197 135"></path><path class="leaflet-interactive" stroke="#a78bfa" stroke-opacity="0.85" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4" fill="none" d="M247 114L254 117"></path><path class="leaflet-interactive" stroke="#a78bfa" stroke-opacity="0.85" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4" fill="none" d="M195 268L178 290"></path><path class="leaflet-interactive" stroke="#a78bfa" stroke-opacity="0.85" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4" fill="none" d="M217 240L195 268"></path><path class="leaflet-interactive" stroke="#34d399" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M251 24L272 39"></path><path class="leaflet-interactive" stroke="#34d399" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M265 46L275 40L283 39"></path><path class="leaflet-interactive" stroke="#34d399" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M150 110L225 58L246 46L265 46"></path><path class="leaflet-interactive" stroke="#34d399" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M91 153L135 124L150 110"></path><path class="leaflet-interactive" stroke="#34d399" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M91 153L74 162"></path><path class="leaflet-interactive" stroke="#34d399" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M150 110L123 128L91 153"></path><path class="leaflet-interactive" stroke="#34d399" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M225 4L246 10"></path><path class="leaflet-interactive" stroke="#34d399" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M91 153L113 148"></path><path class="leaflet-interactive" stroke="#34d399" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M85 163L91 153"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M207 4L231 21"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M231 21L249 30L272 39"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M265 46L283 40L294 33"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M295 46L265 46"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M265 46L302 86L338 107"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M338 107L346 96"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M347 95L339 103"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M347 95L380 124L412 156L441 188L444 210"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M294 75L324 103L338 107"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M236 58L271 68L283 73L294 75"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M236 58L224 52"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M224 52L161 93L131 110L104 135L91 153"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M325 120L338 107"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M224 52L246 46L265 46"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M419 170L440 181"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M440 181L413 188"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M364 185L413 187"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M364 185L330 179L316 174"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M358 183L346 171"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M346 171L330 162"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M330 162L317 157"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M387 198L376 191L358 183"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M317 150L318 163"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M298 176L292 179L287 185"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M313 159L302 169L298 176L287 185"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M310 132L313 159"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M310 132L324 127L325 120"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M302 153L308 132"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M444 210L432 204L419 188"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M499 233L473 219L444 210"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M579 275L560 258L541 244L499 233"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M646 251L662 268"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M638 244L646 251"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M518 186L535 191L554 200"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M541 205L521 200"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M554 200L584 211"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M498 181L518 186"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M579 275L592 289L613 318"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M613 318L621 330L632 342"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M632 342L616 351"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M632 342L653 374"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M653 374L665 396"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M665 396L648 407"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M648 407L630 421"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M630 421L656 431"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M656 431L642 445"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M642 445L621 458"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M621 458L609 443"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M609 443L633 443"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M633 443L674 443"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M674 443L687 416"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M687 416L671 431"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M671 431L651 444"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M651 444L644 423"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M662 268L669 284L678 316L681 337L680 358L671 400L644 423"></path><path class="leaflet-interactive" stroke="#fb923c" stroke-opacity="0.85" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M655 267L662 268"></path></g></svg></div><div class="leaflet-pane leaflet-shadow-pane"></div><div class="leaflet-pane leaflet-marker-pane"></div><div class="leaflet-pane leaflet-tooltip-pane"></div><div class="leaflet-pane leaflet-popup-pane"></div><div class="leaflet-proxy leaflet-zoom-animated"></div></div><div class="leaflet-control-container"><div class="leaflet-top leaflet-left"></div><div class="leaflet-top leaflet-right"></div><div class="leaflet-bottom leaflet-left"><div class="leaflet-control-zoom leaflet-bar leaflet-control"><a class="leaflet-control-zoom-in" href="file:///C:/Users/Owner/Downloads/ct_marathon_map_3.html#" title="Zoom in" role="button" aria-label="Zoom in" aria-disabled="false"><span aria-hidden="true">+</span></a><a class="leaflet-control-zoom-out" href="file:///C:/Users/Owner/Downloads/ct_marathon_map_3.html#" title="Zoom out" role="button" aria-label="Zoom out" aria-disabled="false"><span aria-hidden="true">−</span></a></div></div><div class="leaflet-bottom leaflet-right"><div class="leaflet-control-attribution leaflet-control"><a href="https://leafletjs.com/" title="A JavaScript library for interactive maps"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8" class="leaflet-attribution-flag"><path fill="#4C7BE1" d="M0 0h12v4H0z"></path><path fill="#FFD500" d="M0 4h12v3H0z"></path><path fill="#E0BC00" d="M0 7h12v1H0z"></path></svg> Leaflet</a> <span aria-hidden="true">|</span> © OpenStreetMap contributors © CARTO</div></div></div></div>
+
+  <div id="legend">
+    <div class="leg-title">Events</div>
+    <div class="leg-row"><div class="leg-line" style="background:var(--col-peace);height:5px"></div>Peace Run (Sat)</div>
+    <div class="leg-row"><div class="leg-line" style="background:var(--col-trail);height:5px"></div>Trail Run (Sat)</div>
+    <div class="leg-row"><div class="leg-line" style="background:var(--col-marathon);height:5px"></div>Marathon (Sun)</div>
+    <div style="border-top:1px solid var(--border);margin:8px 0"></div>
+    <div class="leg-title">Closure type</div>
+    <div class="leg-row"><div class="leg-line" style="background:var(--col-full);height:5px"></div>Full closure</div>
+    <div class="leg-row"><div class="leg-line leg-dashed"></div>Parking restriction</div>
+    <div class="leg-row"><div class="leg-line leg-dotted"></div>Delays / stop &amp; hold</div>
+  </div>
+</div>
+
+<script src="./Unofficial_ Cape Town Marathon 2026 — Road Closures_files/leaflet.js.download"></script>
+<script>
+const EV_COL={peace:'#34d399',trail:'#fbbf24',marathon:'#fb923c'};
+const EV_LBL={peace:'Peace Run',trail:'Trail Run',marathon:'Marathon'};
+const CT_COL={full:'#f87171',parking:'#3b9eff',delay:'#a78bfa'};
+
+// events: which event(s) this road serves
+// closureType: 'full' | 'parking' | 'delay'
+// Line colour = event colour (if single event) or white (if multi-event shared closure)
+// Parking = dashed blue; delay = dotted purple; full = solid event colour
+const ROADS=[
+  // ── PARKING RESTRICTIONS ──────────────────────────────────────────────────
+  // A1: Fritz Sonnenberg Rd, Beach Rd → Bay Rd (Green Point, near stadium)
+  {ref:"A1",events:["peace","trail","marathon"],closureType:"parking",road:"Fritz Sonnenberg Rd",section:"Beach Rd → Bay Rd",detail:"No parking",from:"22 May, 08h00",to:"24 May, 10h00",
+   coords:[[-33.9053,18.4105],[-33.9050,18.4120],[-33.9045,18.4138]]},
+  // A2: Beach Rd, Green Point Lighthouse → Portswood Dr
+  {ref:"A2",events:["peace","trail","marathon"],closureType:"parking",road:"Beach Rd",section:"Green Point Lighthouse → Portswood Dr",detail:"No parking – both directions",from:"22 May, 08h00",to:"24 May, 10h00",
+   coords:[[-33.9014,18.3999],[-33.9025,18.4030],[-33.9038,18.4065],[-33.9050,18.4100],[-33.9063,18.4130]]},
+  // A3: Portswood Dr, Beach Rd → Helen Suzman Blvd
+  {ref:"A3",events:["peace","trail","marathon"],closureType:"parking",road:"Portswood Dr",section:"Beach Rd → Helen Suzman Blvd",detail:"No parking – both directions",from:"22 May, 08h00",to:"24 May, 10h00",
+   coords:[[-33.9063,18.4130],[-33.9068,18.4115],[-33.9073,18.4098]]},
+  // A4: Searle St, Pontac St → Sir Lowry Rd
+  {ref:"A4",events:["marathon"],closureType:"parking",road:"Searle St",section:"Pontac St → Sir Lowry Rd",detail:"No parking – both directions",from:"22 May, 08h00",to:"24 May, 11h00",
+   coords:[[-33.9307,18.4406],[-33.9290,18.4385],[-33.9275,18.4363]]},
+  // A5: Victoria Rd, Searle St → Salt River Rd
+  {ref:"A5",events:["marathon"],closureType:"parking",road:"Victoria Rd",section:"Searle St → Salt River Rd",detail:"No parking – both directions",from:"22 May, 17h00",to:"24 May, 11h40",
+   coords:[[-33.9307,18.4406],[-33.9320,18.4448],[-33.9335,18.4488]]},
+  // A7: Main Rd (Mowbray–Newlands), Dean St → Settlers Way offramp
+  {ref:"A7",events:["marathon"],closureType:"parking",road:"Main Rd (Mowbray–Newlands)",section:"Dean St → Settlers Way offramp",detail:"No parking – inbound carriageway",from:"22 May, 17h00",to:"24 May, 12h30",
+   coords:[[-33.9495,18.4732],[-33.9510,18.4745],[-33.9530,18.4760]]},
+  // A8: Liesbeek Parkway, Settlers Way offramp → Klipfontein/Durban Rd
+  {ref:"A8",events:["marathon"],closureType:"parking",road:"Liesbeek Parkway",section:"Settlers Way offramp → Klipfontein/Durban Rd",detail:"No parking – southbound",from:"22 May, 17h00",to:"24 May, 14h20",
+   coords:[[-33.9365,18.4752],[-33.9395,18.4770],[-33.9448,18.4810]]},
+  // A9: Albert Rd, Lower Main Rd → Grey St (Woodstock)
+  {ref:"A9",events:["marathon"],closureType:"parking",road:"Albert Rd",section:"Lower Main Rd → Grey St",detail:"No parking – both directions",from:"22 May, 17h00",to:"24 May, 15h00",
+   coords:[[-33.9272,18.4533],[-33.9280,18.4560],[-33.9288,18.4590]]},
+  // A10: Newmarket St, Grey St → Russell St
+  {ref:"A10",events:["marathon"],closureType:"parking",road:"Newmarket St",section:"Grey St → Russell St",detail:"No parking – both directions",from:"22 May, 17h00",to:"24 May, 15h00",
+   coords:[[-33.9265,18.4518],[-33.9270,18.4500],[-33.9275,18.4480]]},
+  // A11: Russell St, Newmarket St → Sir Lowry Rd
+  {ref:"A11",events:["marathon"],closureType:"parking",road:"Russell St",section:"Newmarket St → Sir Lowry Rd",detail:"No parking – both directions",from:"22 May, 17h00",to:"24 May, 15h00",
+   coords:[[-33.9275,18.4480],[-33.9275,18.4453],[-33.9275,18.4353]]},
+  // A12: Sir Lowry Rd, Tennant St → Russell St (outbound)
+  {ref:"A12",events:["marathon"],closureType:"parking",road:"Sir Lowry Rd",section:"Tennant St → Russell St",detail:"No parking – outbound",from:"22 May, 17h00",to:"24 May, 15h00",
+   coords:[[-33.9271,18.4268],[-33.9272,18.4310],[-33.9274,18.4353]]},
+  // A14: Darling St, Sir Lowry Rd → Adderley St
+  {ref:"A14",events:["marathon"],closureType:"parking",road:"Darling St",section:"Sir Lowry Rd → Adderley St",detail:"No parking – both directions",from:"22 May, 17h00",to:"24 May, 15h00",
+   coords:[[-33.9271,18.4268],[-33.9260,18.4240],[-33.9248,18.4210],[-33.9235,18.4190]]},
+  // A15: Adderley St, Darling St → Wale St
+  {ref:"A15",events:["marathon"],closureType:"parking",road:"Adderley St",section:"Darling St → Wale St",detail:"No parking – southbound",from:"22 May, 17h00",to:"24 May, 15h00",
+   coords:[[-33.9235,18.4190],[-33.9230,18.4188],[-33.9222,18.4185]]},
+  // A17: Long St, Riebeek St → Orange St
+  {ref:"A17",events:["marathon"],closureType:"parking",road:"Long St",section:"Riebeek St → Orange St",detail:"No parking",from:"22 May, 17h00",to:"24 May, 15h20",
+   coords:[[-33.9196,18.4175],[-33.9213,18.4175],[-33.9234,18.4181],[-33.9271,18.4136]]},
+  // A18: Riebeek St, Long St → Buitengracht St
+  {ref:"A18",events:["marathon"],closureType:"parking",road:"Riebeek St",section:"Long St → Buitengracht St",detail:"No parking – both directions",from:"22 May, 17h00",to:"24 May, 15h20",
+   coords:[[-33.9196,18.4175],[-33.9195,18.4190],[-33.9178,18.4202]]},
+  // A19: Somerset Rd, Boundary Rd → Ebenezer Rd
+  {ref:"A19",events:["peace","trail","marathon"],closureType:"parking",road:"Somerset Rd",section:"Boundary Rd → Ebenezer Rd",detail:"No parking – inbound carriageway",from:"22 May, 08h00",to:"24 May, 15h30",
+   coords:[[-33.9115,18.4148],[-33.9122,18.4160],[-33.9132,18.4172]]},
+  // A20: Main Rd (Green Point), Three Anchor Bay Rd → Boundary Rd
+  {ref:"A20",events:["peace","trail","marathon"],closureType:"parking",road:"Main Rd (Green Point)",section:"Three Anchor Bay Rd → Boundary Rd",detail:"No parking – inbound carriageway",from:"22 May, 08h00",to:"24 May, 15h30",
+   coords:[[-33.9090,18.4048],[-33.9098,18.4075],[-33.9105,18.4105],[-33.9112,18.4130],[-33.9115,18.4148]]},
+  // A22: Beach Rd, Three Anchor Bay Rd → Queens Rd
+  {ref:"A22",events:["peace","trail","marathon"],closureType:"parking",road:"Beach Rd",section:"Three Anchor Bay Rd → Queens Rd",detail:"No parking – both directions",from:"22 May, 08h00",to:"24 May, 15h30",
+   coords:[[-33.9090,18.4048],[-33.9110,18.4010],[-33.9135,18.3968],[-33.9165,18.3910],[-33.9190,18.3855],[-33.9226,18.3800]]},
+  // A23: Beach Rd, Queens Rd → Saunders Rd
+  {ref:"A23",events:["peace","trail"],closureType:"parking",road:"Beach Rd",section:"Queens Rd → Saunders Rd",detail:"No parking – both directions",from:"22 May, 17h00",to:"23 May, 10h00",
+   coords:[[-33.9226,18.3800],[-33.9232,18.3785],[-33.9238,18.3770]]},
+
+  // ── MULTI-DAY FULL CLOSURES ────────────────────────────────────────────────
+  // B1: Fritz Sonnenberg Rd, Stephan Way → McDonald's Access Rd
+  {ref:"B1",events:["peace","trail","marathon"],closureType:"full",road:"Fritz Sonnenberg Rd",section:"Stephan Way → McDonald's Access Rd",detail:"Full closure (multi-day, from 18 May)",from:"18 May, 08h00",to:"25 May, 17h00",
+   coords:[[-33.9042,18.4075],[-33.9052,18.4092],[-33.9063,18.4110]]},
+  // B2: Vlei Rd, Fritz Sonnenberg Rd → Helen Suzman Blvd
+  {ref:"B2",events:["peace","trail","marathon"],closureType:"full",road:"Vlei Rd",section:"Fritz Sonnenberg Rd → Helen Suzman Blvd",detail:"Full closure (multi-day, from 11 May)",from:"11 May, 08h00",to:"28 May, 17h00",
+   coords:[[-33.9038,18.4092],[-33.9045,18.4080],[-33.9055,18.4068],[-33.9065,18.4060]]},
+
+  // ── TRAIL RUN – Saturday 23 May – delays at Clyde Rd intersections + Signal Hill ──
+  // C1: Somerset/Main Rd at Clyde Rd (De Waal Drive area, upper city bowl)
+  {ref:"C1",events:["trail"],closureType:"delay",road:"Somerset/Main Rd",section:"Intersection at Main Rd & Clyde Rd",detail:"Temporary delays / stop & hold",from:"Sat 06h00",to:"16h30",
+   coords:[[-33.9330,18.4150],[-33.9338,18.4165]]},
+  // C2: High Level Rd at Clyde Rd (Sea Point upper road)
+  {ref:"C2",events:["trail"],closureType:"delay",road:"High Level Rd",section:"Intersection at High Level & Clyde Rd",detail:"Temporary delays / stop & hold",from:"Sat 06h00",to:"16h30",
+   coords:[[-33.9195,18.4100],[-33.9200,18.4112]]},
+  // C3: Joubert Rd at Clyde Rd (Green Point)
+  {ref:"C3",events:["trail"],closureType:"delay",road:"Joubert Rd",section:"Intersection at Joubert Rd & Clyde Rd",detail:"Temporary delays / stop & hold",from:"Sat 06h00",to:"16h30",
+   coords:[[-33.9108,18.4036],[-33.9113,18.4048]]},
+  // C4: Ocean View Dr at Clyde Rd (lower Signal Hill area)
+  {ref:"C4",events:["trail"],closureType:"delay",road:"Ocean View Dr",section:"Intersection at Ocean View Dr & Clyde Rd",detail:"Temporary delays / stop & hold",from:"Sat 06h00",to:"16h30",
+   coords:[[-33.9148,18.4048],[-33.9153,18.4060]]},
+  // C5: Signal Hill Rd – Lions Head Parking area
+  // Lions Head parking is at approx -33.9363, 18.3952 (upper Signal Hill Rd)
+  {ref:"C5",events:["trail"],closureType:"delay",road:"Signal Hill Rd",section:"Lions Head Parking area",detail:"Temporary delays / stop & hold",from:"Sat 06h00",to:"16h30",
+   coords:[[-33.9363,18.3952],[-33.9350,18.3960],[-33.9335,18.3968]]},
+  // C6: Signal Hill Rd – at Appleton Scout Campsite
+  // Appleton Scout Campsite: -33.9208, 18.3985
+  {ref:"C6",events:["trail"],closureType:"delay",road:"Signal Hill Rd",section:"At Appleton Scout Campsite",detail:"Temporary delays / stop & hold",from:"Sat 06h00",to:"16h30",
+   coords:[[-33.9215,18.3988],[-33.9208,18.3985],[-33.9200,18.3982]]},
+  // C7: Springbok Rd at Clyde Rd
+  {ref:"C7",events:["trail"],closureType:"delay",road:"Springbok Rd",section:"Intersection at Springbok Rd & Clyde Rd",detail:"Temporary delays / stop & hold",from:"Sat 06h00",to:"16h30",
+   coords:[[-33.9170,18.4068],[-33.9175,18.4080]]},
+  // C8: Kloof Nek Rd – between Signal Hill Rd junction & Tafelberg Rd junction
+  // Kloof Nek Rd & Tafelberg Rd: -33.9421, 18.3949
+  // Signal Hill Rd turns off Kloof Nek just before this, ~-33.9415, 18.3970
+  {ref:"C8",events:["trail"],closureType:"delay",road:"Kloof Nek Rd",section:"Signal Hill Rd junction ↔ Tafelberg Rd junction",detail:"Temporary delays / stop & hold",from:"Sat 06h30",to:"15h00",
+   coords:[[-33.9390,18.3978],[-33.9400,18.3968],[-33.9410,18.3958],[-33.9421,18.3949]]},
+  // C9: Kloof Rd – between Kloof Rd and Kloof Nek Rd junction
+  // Kloof Rd runs from below Gardens up to join Kloof Nek Rd near -33.9390, 18.3975
+  {ref:"C9",events:["trail"],closureType:"delay",road:"Kloof Rd",section:"Kloof Rd ↔ Kloof Nek Rd junction",detail:"Caution – runners present",from:"Sat 07h00",to:"12h30",
+   coords:[[-33.9350,18.4015],[-33.9365,18.4000],[-33.9378,18.3990],[-33.9390,18.3978]]},
+
+  // ── PEACE RUN – Saturday 23 May ───────────────────────────────────────────
+  // D1: Fritz Sonnenberg Rd, Stephan Way → Beach Rd
+  {ref:"D1",events:["peace"],closureType:"full",road:"Fritz Sonnenberg Rd",section:"Stephan Way → Beach Rd",detail:"Full closure. Local access for residents/businesses.",from:"Sat 07h00",to:"10h30",
+   coords:[[-33.9042,18.4075],[-33.9052,18.4092],[-33.9063,18.4110]]},
+  // D2: Beach Rd, Helen Suzman Blvd → Fritz Sonnenberg Rd (seaside lane)
+  {ref:"D2",events:["peace"],closureType:"full",road:"Beach Rd",section:"Helen Suzman Blvd → Fritz Sonnenberg Rd",detail:"Seaside lane closed",from:"Sat 07h00",to:"11h45",
+   coords:[[-33.9073,18.4098],[-33.9065,18.4115],[-33.9063,18.4130]]},
+  // D3: Beach Rd, St Johns Rd → Helen Suzman Blvd (inbound)
+  // St Johns Rd meets Beach Rd around Sea Point promenade ~-33.9165, 18.3900
+  {ref:"D3",events:["peace"],closureType:"full",road:"Beach Rd",section:"St Johns Rd → Helen Suzman Blvd",detail:"Inbound lanes closed",from:"Sat 06h30",to:"11h30",
+   coords:[[-33.9165,18.3900],[-33.9140,18.3945],[-33.9115,18.3990],[-33.9090,18.4030],[-33.9073,18.4065],[-33.9073,18.4098]]},
+  // D4: Beach Rd, Queens Rd → St Johns Rd (inbound)
+  {ref:"D4",events:["peace"],closureType:"full",road:"Beach Rd",section:"Queens Rd → St Johns",detail:"Inbound lanes closed",from:"Sat 06h30",to:"10h30",
+   coords:[[-33.9226,18.3800],[-33.9205,18.3840],[-33.9185,18.3875],[-33.9165,18.3900]]},
+  // D5: Beach Rd, Queens Rd → Saunders Rd (full closure)
+  {ref:"D5",events:["peace"],closureType:"full",road:"Beach Rd",section:"Queens Rd → Saunders Rd",detail:"Full closure",from:"Sat 07h00",to:"10h00",
+   coords:[[-33.9226,18.3800],[-33.9232,18.3785],[-33.9238,18.3770]]},
+  // D6: Beach Rd, St Johns Rd → Queens Rd (outbound lanes)
+  {ref:"D6",events:["peace"],closureType:"full",road:"Beach Rd",section:"St Johns Rd → Queens Rd",detail:"Outbound lanes closed",from:"Sat 07h00",to:"10h30",
+   coords:[[-33.9165,18.3900],[-33.9190,18.3855],[-33.9226,18.3800]]},
+  // D7: Bay Rd, Rothesay Place → Alexander Place (Mouille Point)
+  // Rothesay Pl & Bay Rd: -33.9013, 18.4030
+  {ref:"D7",events:["peace"],closureType:"full",road:"Bay Rd",section:"Rothesay Place → Alexander Place",detail:"Full closure. Local access to Alexander Place.",from:"Sat 07h30",to:"11h30",
+   coords:[[-33.9013,18.4030],[-33.9018,18.4048],[-33.9022,18.4065]]},
+  // D8: Alexander Rd, Queens Rd → Beach Rd (Sea Point)
+  // Alexander Rd & Queens Rd: -33.9226, 18.3800
+  {ref:"D8",events:["peace"],closureType:"full",road:"Alexander Rd",section:"Queens Rd → Beach Rd",detail:"Full closure",from:"Sat 07h30",to:"10h30",
+   coords:[[-33.9226,18.3800],[-33.9222,18.3820],[-33.9218,18.3838]]},
+  // D9: Queens Rd, Regent Rd → Beach Rd
+  {ref:"D9",events:["peace"],closureType:"full",road:"Queens Rd",section:"Regent Rd → Beach Rd",detail:"Full closure",from:"Sat 07h30",to:"10h30",
+   coords:[[-33.9240,18.3790],[-33.9232,18.3795],[-33.9226,18.3800]]},
+
+  // ── MARATHON – Atlantic Seaboard – Sunday 24 May ──────────────────────────
+  // E2: Beach Rd, Green Point Lighthouse → Surrey Place (start area)
+  {ref:"E2",events:["marathon"],closureType:"full",road:"Beach Rd",section:"Green Point Lighthouse → Surrey Place",detail:"Start area. Residents exit until 05h30.",from:"Sun 02h00",to:"10h00",
+   coords:[[-33.9014,18.3999],[-33.9025,18.4018],[-33.9038,18.4040]]},
+  // E3: Beach Rd, Surrey Place → Portswood Dr
+  {ref:"E3",events:["marathon"],closureType:"full",road:"Beach Rd",section:"Surrey Place → Portswood Dr",detail:"See E5/E6 for vehicle crossing times.",from:"Sun 04h00",to:"10h00",
+   coords:[[-33.9038,18.4040],[-33.9050,18.4070],[-33.9063,18.4110]]},
+  // E5: Granger Bay Blvd, Helen Suzman Blvd → Granger Rd
+  {ref:"E5",events:["marathon"],closureType:"full",road:"Granger Bay Blvd",section:"Helen Suzman Blvd → Granger Rd",detail:"No crossing at Granger Bay Blvd/Beach Rd from 07h30.",from:"Sun 07h30",to:"09h45",
+   coords:[[-33.9073,18.4098],[-33.9065,18.4130],[-33.9055,18.4148]]},
+  // E7: Portswood Rd, Granger Rd → Helen Suzman Blvd
+  {ref:"E7",events:["marathon"],closureType:"full",road:"Portswood Rd",section:"Granger Rd → Helen Suzman Blvd",detail:"Closed",from:"Sun 07h00",to:"10h00",
+   coords:[[-33.9073,18.4150],[-33.9073,18.4130],[-33.9073,18.4098]]},
+  // E8: Helen Suzman Blvd inbound, Granger Bay Circle → Buitengracht St
+  {ref:"E8",events:["marathon"],closureType:"full",road:"Helen Suzman Blvd (inbound)",section:"Granger Bay Circle → Buitengracht St",detail:"Inbound lanes closed",from:"Sun 07h20",to:"10h10",
+   coords:[[-33.9073,18.4098],[-33.9100,18.4130],[-33.9130,18.4162],[-33.9160,18.4223]]},
+  // E9: Buitengracht St, Helen Suzman Blvd → Dock Rd
+  {ref:"E9",events:["marathon"],closureType:"full",road:"Buitengracht St",section:"Helen Suzman Blvd → Dock Rd",detail:"3 left outbound lanes closed. Dock Rd intersection closed 07h50–10h00.",from:"Sun 07h00",to:"10h15",
+   coords:[[-33.9160,18.4223],[-33.9152,18.4230],[-33.9145,18.4238]]},
+  // E11: Dock Rd, South Arm Rd → Buitengracht St
+  {ref:"E11",events:["marathon"],closureType:"full",road:"Dock Rd",section:"South Arm Rd → Buitengracht St",detail:"Closed",from:"Sun 07h25",to:"10h00",
+   coords:[[-33.9143,18.4239],[-33.9148,18.4232],[-33.9155,18.4225]]},
+  // E13: Nelson Mandela Blvd, Dock Rd → Searle St (outbound)
+  {ref:"E13",events:["marathon"],closureType:"full",road:"Nelson Mandela Blvd",section:"Dock Rd → Searle St",detail:"Outbound lanes closed",from:"Sun 06h40",to:"11h00",
+   coords:[[-33.9143,18.4239],[-33.9185,18.4295],[-33.9230,18.4350],[-33.9275,18.4400],[-33.9307,18.4406]]},
+  // E14: Somerset Rd, Boundary Rd → Buitengracht St (inbound)
+  {ref:"E14",events:["marathon"],closureType:"full",road:"Somerset Rd",section:"Boundary Rd → Buitengracht St",detail:"Inbound lanes closed. Contraflow on outbound lanes.",from:"Sun 05h45",to:"15h40",
+   coords:[[-33.9115,18.4148],[-33.9125,18.4162],[-33.9138,18.4178],[-33.9155,18.4200],[-33.9160,18.4223]]},
+  // E15: Main Rd Green Point, Three Anchor Bay Rd → Boundary Rd (inbound)
+  {ref:"E15",events:["marathon"],closureType:"full",road:"Main Rd (Green Point)",section:"Three Anchor Bay Rd → Boundary Rd",detail:"Inbound lanes closed. Contraflow on outbound lanes.",from:"Sun 05h45",to:"15h40",
+   coords:[[-33.9090,18.4048],[-33.9098,18.4078],[-33.9105,18.4108],[-33.9112,18.4130],[-33.9115,18.4148]]},
+  // E16: Three Anchor Bay Rd, Main Rd → Beach Rd
+  {ref:"E16",events:["marathon"],closureType:"full",road:"Three Anchor Bay Rd",section:"Main Rd → Beach Rd",detail:"Full closure",from:"Sun 07h30",to:"16h40",
+   coords:[[-33.9090,18.4048],[-33.9085,18.4038],[-33.9082,18.4028]]},
+  // E17: Beach Rd, Three Anchor Bay Rd → Queens Rd (full closure, marathon route)
+  {ref:"E17",events:["marathon"],closureType:"full",road:"Beach Rd",section:"Three Anchor Bay Rd → Queens Rd",detail:"Full closure",from:"Sun 04h00",to:"16h40",
+   coords:[[-33.9082,18.4028],[-33.9110,18.3975],[-33.9140,18.3920],[-33.9165,18.3868],[-33.9200,18.3822],[-33.9226,18.3800]]},
+  // E18: Buitengracht St, Riebeek St → Somerset Rd inbound
+  {ref:"E18",events:["marathon"],closureType:"full",road:"Buitengracht St",section:"Riebeek St → Somerset Rd inbound",detail:"Inbound intersection closed. Detour via Somerset Rd → Granger Bay Blvd → Helen Suzman Blvd.",from:"Sun 08h45",to:"14h40",
+   coords:[[-33.9178,18.4202],[-33.9168,18.4212],[-33.9160,18.4223]]},
+  // E19: Helen Suzman Blvd, Three Anchor Bay Rd → Granger Bay Blvd (full closure)
+  {ref:"E19",events:["marathon"],closureType:"full",road:"Helen Suzman Blvd",section:"Three Anchor Bay Rd → Granger Bay Blvd",detail:"Full closure",from:"Sun 07h30",to:"16h40",
+   coords:[[-33.9082,18.4028],[-33.9073,18.4065],[-33.9073,18.4098]]},
+
+  // ── MARATHON – CBD / District Six – Sunday 24 May ─────────────────────────
+  // F4: Newmarket St, Strand St → Russell St
+  {ref:"F4",events:["marathon"],closureType:"full",road:"Newmarket St",section:"Strand St → Russell St",detail:"NMB onramp opens at 11h00.",from:"Sun 07h10",to:"14h50",
+   coords:[[-33.9250,18.4362],[-33.9258,18.4380],[-33.9265,18.4398]]},
+  // F5: Russell St, Newmarket St → Sir Lowry Rd
+  {ref:"F5",events:["marathon"],closureType:"full",road:"Russell St",section:"Newmarket St → Sir Lowry Rd",detail:"Full closure",from:"Sun 07h10",to:"14h50",
+   coords:[[-33.9265,18.4398],[-33.9270,18.4378],[-33.9275,18.4353]]},
+  // F6: Sir Lowry Rd, Tennant St/Christiaan Barnard → Russell St
+  {ref:"F6",events:["marathon"],closureType:"full",road:"Sir Lowry Rd",section:"Tennant St → Russell St",detail:"Full closure. Contraflow.",from:"Sun 07h10",to:"14h50",
+   coords:[[-33.9271,18.4268],[-33.9272,18.4310],[-33.9274,18.4353]]},
+  // F7: Sir Lowry Rd, Tennant St → Darling St
+  {ref:"F7",events:["marathon"],closureType:"full",road:"Sir Lowry Rd",section:"Tennant St → Darling St",detail:"Full closure. Contraflow.",from:"Sun 07h10",to:"14h50",
+   coords:[[-33.9271,18.4268],[-33.9268,18.4240],[-33.9262,18.4210],[-33.9255,18.4185]]},
+  // F8: Darling St northbound, Primrose St → Buitenkant/Castle St
+  {ref:"F8",events:["marathon"],closureType:"full",road:"Darling St northbound",section:"Primrose St → Buitenkant/Castle St",detail:"Inbound lanes closed. Contraflow.",from:"Sun 07h10",to:"14h50",
+   coords:[[-33.9268,18.4258],[-33.9260,18.4248],[-33.9252,18.4238]]},
+  // F9: Darling St, Castle St → Lower Plein St
+  {ref:"F9",events:["marathon"],closureType:"full",road:"Darling St",section:"Castle St → Lower Plein St",detail:"Full closure. Crossing allowed until 08h30 and after 14h00.",from:"Sun 07h10",to:"15h05",
+   coords:[[-33.9252,18.4238],[-33.9245,18.4224],[-33.9238,18.4210]]},
+  // F10: Darling St, Lower Plein St → Adderley St
+  {ref:"F10",events:["marathon"],closureType:"full",road:"Darling St",section:"Lower Plein St → Adderley St",detail:"Westbound closure.",from:"Sun 07h10",to:"15h05",
+   coords:[[-33.9238,18.4210],[-33.9235,18.4200],[-33.9232,18.4188]]},
+  // F11: Buitenkant St, Caledon St → Darling St
+  {ref:"F11",events:["marathon"],closureType:"full",road:"Buitenkant St",section:"Caledon St → Darling St",detail:"Closed",from:"Sun 07h10",to:"14h50",
+   coords:[[-33.9290,18.4308],[-33.9280,18.4288],[-33.9268,18.4258]]},
+  // F12: Adderley St, Strand St → Wale St (southbound)
+  {ref:"F12",events:["marathon"],closureType:"full",road:"Adderley St",section:"Strand St → Wale St",detail:"Southbound lanes closed.",from:"Sun 07h30",to:"15h05",
+   coords:[[-33.9222,18.4188],[-33.9228,18.4188],[-33.9234,18.4188],[-33.9240,18.4190]]},
+  // F13: Orange St, Hof St → Long St (outbound)
+  {ref:"F13",events:["marathon"],closureType:"full",road:"Orange St",section:"Hof St → Long St",detail:"Outbound lanes closed. Contraflow.",from:"Sun 07h30",to:"15h20",
+   coords:[[-33.9258,18.4155],[-33.9263,18.4145],[-33.9271,18.4136]]},
+  // F14: Long St, Wale St → Orange St (full closure)
+  // Long St & Wale St: -33.9234, 18.4181;  Long St & Orange St: -33.9271, 18.4136
+  {ref:"F14",events:["marathon"],closureType:"full",road:"Long St",section:"Wale St → Orange St",detail:"Full closure. Crossing at Wale St until 08h40 and after 14h30.",from:"Sun 04h30",to:"15h35",
+   coords:[[-33.9234,18.4181],[-33.9248,18.4162],[-33.9258,18.4155],[-33.9271,18.4136]]},
+  // F15: Long St, Riebeek St → Wale St (full closure)
+  // Riebeek St meets Long St around -33.9196, 18.4175
+  {ref:"F15",events:["marathon"],closureType:"full",road:"Long St",section:"Riebeek St → Wale St",detail:"Full closure. Crossing at Strand St until 08h40 and after 14h30.",from:"Sun 04h30",to:"15h35",
+   coords:[[-33.9196,18.4175],[-33.9210,18.4178],[-33.9222,18.4180],[-33.9234,18.4181]]},
+  // F16: Riebeek St, Long St → Bree St
+  {ref:"F16",events:["marathon"],closureType:"full",road:"Riebeek St",section:"Long St → Bree St",detail:"Full closure. Turn left at Riebeek St only.",from:"Sun 07h00",to:"15h20",
+   coords:[[-33.9196,18.4175],[-33.9192,18.4188],[-33.9188,18.4200],[-33.9178,18.4202]]},
+  // F18: Loop St, Strand St → Riebeek St
+  {ref:"F18",events:["marathon"],closureType:"full",road:"Loop St",section:"Strand St → Riebeek St",detail:"Closed",from:"Sun 07h00",to:"15h20",
+   coords:[[-33.9225,18.4162],[-33.9215,18.4165],[-33.9205,18.4168],[-33.9196,18.4172]]},
+
+  // ── MARATHON – Woodstock / Salt River / Observatory – Sunday 24 May ───────
+  // G1: Searle St, Nelson Mandela Blvd/N2 → Sir Lowry Rd
+  {ref:"G1",events:["marathon"],closureType:"full",road:"Searle St",section:"Nelson Mandela Blvd/N2 → Sir Lowry Rd",detail:"Full closure",from:"Sun 07h10",to:"11h00",
+   coords:[[-33.9307,18.4406],[-33.9298,18.4385],[-33.9275,18.4363]]},
+  // G2: Sir Lowry/Victoria Rd, Salt River Rd → Searle St (inbound)
+  {ref:"G2",events:["marathon"],closureType:"full",road:"Sir Lowry / Victoria Rd",section:"Salt River Rd → Searle St",detail:"Inbound lanes closed. Contraflow N2 to Searle St.",from:"Sun 04h30",to:"11h30",
+   coords:[[-33.9340,18.4500],[-33.9320,18.4455],[-33.9307,18.4406]]},
+  // G3: Main Rd, N2 → Salt River Rd (inbound)
+  // N2/Salt River area ~-33.9400, 18.4640; Salt River Rd ~-33.9340, 18.4500
+  {ref:"G3",events:["marathon"],closureType:"full",road:"Main Rd",section:"N2 → Salt River Rd",detail:"Inbound lanes closed. Emergency access at Groote Schuur Dr.",from:"Sun 05h30",to:"11h40",
+   coords:[[-33.9400,18.4638],[-33.9375,18.4605],[-33.9355,18.4572],[-33.9340,18.4500]]},
+  // G4: Liesbeek Parkway, Station Rd → N2 (southbound)
+  // Station Rd & Liesbeek Pkwy: -33.9365, 18.4752
+  {ref:"G4",events:["marathon"],closureType:"full",road:"Liesbeek Parkway",section:"Station Rd → N2",detail:"Southbound lanes closed.",from:"Sun 07h40",to:"14h05",
+   coords:[[-33.9365,18.4752],[-33.9378,18.4768],[-33.9390,18.4780]]},
+  // G5: Liesbeek Parkway, Station Rd → Berkley Rd (full closure)
+  {ref:"G5",events:["marathon"],closureType:"full",road:"Liesbeek Parkway",section:"Station Rd → Berkley Rd",detail:"Full closure. Crossing until 08h25.",from:"Sun 07h40",to:"14h20",
+   coords:[[-33.9355,18.4738],[-33.9360,18.4745],[-33.9365,18.4752]]},
+  // G8: Albert Rd, Lower Main Rd → Salt River Circle
+  {ref:"G8",events:["marathon"],closureType:"full",road:"Albert Rd",section:"Lower Main Rd → Salt River Circle",detail:"Full closure. Crossing until 08h30.",from:"Sun 06h40",to:"14h20",
+   coords:[[-33.9272,18.4533],[-33.9280,18.4562],[-33.9292,18.4595]]},
+  // G9: Voortrekker Rd, Transnet Entrance → Salt River Circle
+  {ref:"G9",events:["marathon"],closureType:"full",road:"Voortrekker Rd",section:"Transnet Entrance → Salt River Circle",detail:"Full closure",from:"Sun 06h40",to:"14h20",
+   coords:[[-33.9300,18.4572],[-33.9295,18.4555],[-33.9292,18.4538]]},
+  // G10: Albert Rd, Salt River Circle → Lower Church St
+  {ref:"G10",events:["marathon"],closureType:"full",road:"Albert Rd",section:"Salt River Circle → Lower Church St",detail:"Full closure. Crossing until 08h30.",from:"Sun 06h40",to:"14h50",
+   coords:[[-33.9292,18.4595],[-33.9300,18.4622],[-33.9308,18.4645]]},
+  // G12: Albert Rd / Newmarket St, Lower Church St → Russell St
+  {ref:"G12",events:["marathon"],closureType:"full",road:"Albert Rd / Newmarket St",section:"Lower Church St → Russell St",detail:"Full closure. Crossing until 08h30.",from:"Sun 07h10",to:"14h50",
+   coords:[[-33.9265,18.4498],[-33.9268,18.4518],[-33.9272,18.4533]]},
+
+  // ── MARATHON – Southern Suburbs – Sunday 24 May ───────────────────────────
+  // H1: Main Rd, Rhodes Ave → N2 (Mowbray/Observatory)
+  {ref:"H1",events:["marathon"],closureType:"full",road:"Main Rd",section:"Rhodes Ave → N2",detail:"Inbound lanes closed. Contraflow N2 to Rhodes Ave.",from:"Sun 05h30",to:"11h40",
+   coords:[[-33.9400,18.4638],[-33.9420,18.4660],[-33.9440,18.4678],[-33.9460,18.4695]]},
+  // H2: Main Rd, Belmont Rd → Rhodes Ave (Rondebosch)
+  {ref:"H2",events:["marathon"],closureType:"full",road:"Main Rd",section:"Belmont Rd → Rhodes Ave",detail:"Inbound lanes closed.",from:"Sun 06h40",to:"12h10",
+   coords:[[-33.9460,18.4695],[-33.9478,18.4710],[-33.9495,18.4728]]},
+  // H3: Burg Rd, Main Rd → Baxter Rd (Rondebosch)
+  {ref:"H3",events:["marathon"],closureType:"full",road:"Burg Rd",section:"Main Rd → Baxter Rd",detail:"Full closure",from:"Sun 05h00",to:"12h10",
+   coords:[[-33.9495,18.4728],[-33.9502,18.4715],[-33.9508,18.4700]]},
+  // H4: Main Rd, Klipper Rd → Belmont Rd (Newlands)
+  {ref:"H4",events:["marathon"],closureType:"full",road:"Main Rd",section:"Klipper Rd → Belmont Rd",detail:"Inbound lanes closed.",from:"Sun 06h40",to:"12h45",
+   coords:[[-33.9495,18.4728],[-33.9510,18.4740],[-33.9525,18.4752],[-33.9540,18.4765]]},
+  // H5: Main Rd, Letterstedt/Claremont Blvd → Klipper Rd (Newlands/Claremont)
+  {ref:"H5",events:["marathon"],closureType:"full",road:"Main Rd",section:"Letterstedt/Claremont Blvd → Klipper Rd",detail:"Inbound lanes closed.",from:"Sun 06h40",to:"12h30",
+   coords:[[-33.9540,18.4765],[-33.9558,18.4775],[-33.9572,18.4785]]},
+  // H6: Letterstedt/Claremont Blvd, Main Rd → Hawthorne Rd
+  {ref:"H6",events:["marathon"],closureType:"full",road:"Letterstedt/Claremont Blvd",section:"Main Rd → Hawthorne Rd",detail:"Full closure",from:"Sun 05h40",to:"12h30",
+   coords:[[-33.9572,18.4785],[-33.9580,18.4770],[-33.9588,18.4755]]},
+  // H7: Claremont Blvd, Hawthorne Rd → Stanhope St
+  {ref:"H7",events:["marathon"],closureType:"full",road:"Claremont Blvd",section:"Hawthorne Rd → Stanhope St",detail:"Southbound lanes closed.",from:"Sun 05h40",to:"12h30",
+   coords:[[-33.9588,18.4755],[-33.9598,18.4740],[-33.9608,18.4725]]},
+  // H8: Stanhope Rd, Claremont Blvd → Palmyra Rd
+  {ref:"H8",events:["marathon"],closureType:"full",road:"Stanhope Rd",section:"Claremont Blvd → Palmyra Rd",detail:"Eastbound lanes closed.",from:"Sun 07h10",to:"12h30",
+   coords:[[-33.9608,18.4725],[-33.9615,18.4748],[-33.9622,18.4770]]},
+  // H9: Palmyra Rd, Stanhope Rd → Keurboom Rd
+  {ref:"H9",events:["marathon"],closureType:"full",road:"Palmyra Rd",section:"Stanhope Rd → Keurboom Rd",detail:"Full closure.",from:"Sun 07h10",to:"12h45",
+   coords:[[-33.9622,18.4770],[-33.9632,18.4758],[-33.9642,18.4745]]},
+  // H10: Campground Rd, Keurboom Rd → Sandown Rd
+  {ref:"H10",events:["marathon"],closureType:"full",road:"Campground Rd",section:"Keurboom Rd → Sandown Rd",detail:"Full closure.",from:"Sun 07h10",to:"12h45",
+   coords:[[-33.9642,18.4745],[-33.9650,18.4728],[-33.9660,18.4710]]},
+  // H11: Sandown Rd, Campground Rd → Milner Rd
+  {ref:"H11",events:["marathon"],closureType:"full",road:"Sandown Rd",section:"Campground Rd → Milner Rd",detail:"Full closure",from:"Sun 07h40",to:"13h00",
+   coords:[[-33.9660,18.4710],[-33.9648,18.4698],[-33.9638,18.4688]]},
+  // H12–H14: Milner Rd (Rondebosch)
+  {ref:"H12",events:["marathon"],closureType:"full",road:"Milner Rd",section:"Sandown Rd → Greenbank Rd",detail:"Full closure. Crossing until 08h25.",from:"Sun 07h40",to:"13h10",
+   coords:[[-33.9638,18.4688],[-33.9638,18.4712],[-33.9638,18.4730]]},
+  {ref:"H14",events:["marathon"],closureType:"full",road:"Milner Rd",section:"Park Rd → Klipfontein Rd",detail:"Northbound lanes closed. Contraflow.",from:"Sun 07h10",to:"13h35",
+   coords:[[-33.9638,18.4730],[-33.9638,18.4755],[-33.9638,18.4778],[-33.9638,18.4800]]},
+  // H15: Klipfontein Rd, Milner Rd → Sawkins Rd
+  {ref:"H15",events:["marathon"],closureType:"full",road:"Klipfontein Rd",section:"Milner Rd → Sawkins Rd",detail:"Full closure",from:"Sun 07h55",to:"13h35",
+   coords:[[-33.9638,18.4800],[-33.9618,18.4812],[-33.9600,18.4822]]},
+  // H16: Sawkins Rd, Klipfontein Rd → Campground/Pillans Rd Circle
+  {ref:"H16",events:["marathon"],closureType:"full",road:"Sawkins Rd",section:"Klipfontein Rd → Campground/Pillans Rd Circle",detail:"Full closure",from:"Sun 07h55",to:"13h35",
+   coords:[[-33.9600,18.4822],[-33.9612,18.4808],[-33.9622,18.4796]]},
+  // H17: Campground Rd, Circle → Park Rd
+  {ref:"H17",events:["marathon"],closureType:"full",road:"Campground Rd",section:"Campground/Pillans Rd Circle → Park Rd",detail:"Full closure",from:"Sun 07h55",to:"13h35",
+   coords:[[-33.9622,18.4796],[-33.9632,18.4778],[-33.9640,18.4760]]},
+  // H18: Park Rd, Campground Rd → Liesbeek Parkway
+  {ref:"H18",events:["marathon"],closureType:"full",road:"Park Rd",section:"Campground Rd → Liesbeek Parkway",detail:"Eastbound lanes closed. Contraflow.",from:"Sun 07h55",to:"13h35",
+   coords:[[-33.9640,18.4760],[-33.9625,18.4755],[-33.9610,18.4748]]},
+  // H19: Liesbeek Parkway, N2 → Park Rd (southbound)
+  {ref:"H19",events:["marathon"],closureType:"full",road:"Liesbeek Parkway",section:"N2 → Park Rd",detail:"Southbound lanes closed. Crossing until 08h30.",from:"Sun 07h10",to:"14h05",
+   coords:[[-33.9390,18.4780],[-33.9412,18.4792],[-33.9435,18.4800],[-33.9458,18.4808],[-33.9488,18.4812],[-33.9518,18.4810],[-33.9548,18.4804],[-33.9578,18.4796],[-33.9610,18.4748]]},
+  // H20: N2 offramp onto Liesbeek Pkwy
+  {ref:"H20",events:["marathon"],closureType:"full",road:"N2 offramp onto Liesbeek Pkwy",section:"N2 → Liesbeek Pkwy",detail:"Closed",from:"Sun 07h10",to:"14h05",
+   coords:[[-33.9388,18.4768],[-33.9390,18.4780]]},
+];
+
+// Init map
+const map=L.map('map',{center:[-33.940,18.445],zoom:13,zoomControl:false});
+L.control.zoom({position:'bottomleft'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap contributors © CARTO',subdomains:'abcd',maxZoom:20}).addTo(map);
+
+// State
+let activeEvents=new Set(['peace','trail','marathon']);
+let activeTypes=new Set(['full','parking','delay']);
+let activeRef=null;
+let searchQuery='';
+
+function lineColor(r){
+  if(r.closureType==='parking') return '#3b9eff';
+  if(r.closureType==='delay') return '#a78bfa';
+  if(r.events.length===1) return EV_COL[r.events[0]];
+  return '#ffffff';
+}
+function lineWeight(r){return r.closureType==='full'?5:r.closureType==='delay'?3:2}
+function lineDash(r){return r.closureType==='parking'?'7 5':r.closureType==='delay'?'4 4':null}
+
+// Build polylines
+const pls={};
+ROADS.forEach(r=>{
+  const opts={color:lineColor(r),weight:lineWeight(r),opacity:.85};
+  if(lineDash(r)) opts.dashArray=lineDash(r);
+  const pl=L.polyline(r.coords,opts).addTo(map);
+  const evBadges=r.events.map(e=>`<span class="popup-badge" style="background:${EV_COL[e]}22;color:${EV_COL[e]};border:1px solid ${EV_COL[e]}44">${EV_LBL[e]}</span>`).join('');
+  const cc=CT_COL[r.closureType]||'#aaa';
+  const cl=r.closureType==='full'?'Full closure':r.closureType==='parking'?'Parking restriction':'Delays';
+  pl.bindPopup(`<div class="popup-badges">${evBadges}<span class="popup-badge" style="background:${cc}22;color:${cc};border:1px solid ${cc}44">${cl}</span></div><div class="popup-road">${r.road}</div>${r.section?`<div class="popup-section">${r.section}</div>`:''}<div class="popup-detail">${r.detail}</div><div class="popup-time"><span>From</span> ${r.from} &nbsp;→&nbsp; <span>Until</span> ${r.to}</div>`);
+  pl.on('click',()=>hlItem(r.ref));
+  pls[r.ref]={pl,data:r};
+});
+
+function isVis(r){
+  if(!activeTypes.has(r.closureType)) return false;
+  if(!r.events.some(e=>activeEvents.has(e))) return false;
+  const q=searchQuery.toLowerCase();
+  if(q&&!r.road.toLowerCase().includes(q)&&!r.ref.toLowerCase().includes(q)&&!r.section.toLowerCase().includes(q)) return false;
+  return true;
+}
+
+function buildList(){
+  const filtered=ROADS.filter(isVis);
+  document.getElementById('count-bar').textContent=`${filtered.length} road${filtered.length!==1?'s':''} shown`;
+  document.getElementById('road-list').innerHTML=filtered.map(r=>{
+    const lc=lineColor(r);
+    const evB=r.events.map(e=>`<span class="ri-badge" style="background:${EV_COL[e]}22;color:${EV_COL[e]};border:1px solid ${EV_COL[e]}44">${e==='peace'?'Peace':e==='trail'?'Trail':'Marathon'}</span>`).join('');
+    const cc=CT_COL[r.closureType]||'#aaa';
+    const cl=r.closureType==='full'?'⛔':r.closureType==='parking'?'🅿':'⚠';
+    return `<div class="road-item ${r.ref===activeRef?'active':''}" data-ref="${r.ref}" style="border-left-color:${r.ref===activeRef?lc:'transparent'}">
+      <div class="ri-top"><span class="ri-badge" style="background:${lc}22;color:${lc};border:1px solid ${lc}44">${r.ref}</span>${evB}<span class="ri-badge" style="background:${cc}22;color:${cc};border:1px solid ${cc}44">${cl}</span></div>
+      <div class="ri-name">${r.road}</div>
+      ${r.section?`<div class="ri-section">${r.section}</div>`:''}
+      <div class="ri-time">${r.from} → ${r.to}</div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.road-item').forEach(el=>{
+    el.addEventListener('click',()=>{
+      hlItem(el.dataset.ref);
+      const p=pls[el.dataset.ref];
+      if(p) map.fitBounds(p.pl.getBounds(),{padding:[60,60]});
+    });
+  });
+  ROADS.forEach(r=>{
+    const v=isVis(r);
+    if(v&&!map.hasLayer(pls[r.ref].pl)) map.addLayer(pls[r.ref].pl);
+    if(!v&&map.hasLayer(pls[r.ref].pl)) map.removeLayer(pls[r.ref].pl);
+  });
+}
+
+function hlItem(ref){
+  activeRef=ref;
+  buildList();
+  const el=document.querySelector(`[data-ref="${ref}"]`);
+  if(el) el.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+
+document.querySelectorAll('.ef-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const ev=btn.dataset.ev;
+    if(activeEvents.has(ev)) activeEvents.delete(ev); else activeEvents.add(ev);
+    btn.classList.toggle('off',!activeEvents.has(ev));
+    buildList();
+  });
+});
+
+document.querySelectorAll('.tf-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const ct=btn.dataset.ct;
+    if(activeTypes.has(ct)) activeTypes.delete(ct); else activeTypes.add(ct);
+    btn.classList.toggle('off',!activeTypes.has(ct));
+    buildList();
+  });
+});
+
+document.getElementById('search').addEventListener('input',e=>{
+  searchQuery=e.target.value;
+  buildList();
+});
+
+buildList();
+</script>
+
+</body></html>
